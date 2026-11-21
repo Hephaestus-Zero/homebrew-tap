@@ -48,6 +48,7 @@ jobs:
           rm -rf "${TAP_DIR}"
           mkdir -p "$(dirname "${TAP_DIR}")"
           ln -s "${GITHUB_WORKSPACE}" "${TAP_DIR}"
+          brew trust hephaestus-zero/tap || true
 
       - name: Audit formulas
         run: |
