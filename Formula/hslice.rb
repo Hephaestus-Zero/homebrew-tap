@@ -6,6 +6,8 @@ class Hslice < Formula
   license "MIT"
   head "https://github.com/Hephaestus-Zero/hslice.git", branch: "main"
 
+  conflicts_with "hephaestus", because: "both install hslice, hfind and hsearch"
+
   def install
     system "make", "install", "PREFIX=#{prefix}"
   end

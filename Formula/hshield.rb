@@ -10,6 +10,8 @@ class Hshield < Formula
   depends_on "openssl@3"
   depends_on "zlib"
 
+  conflicts_with "hephaestus", because: "both install hshield"
+
   def install
     system "make", "install", "PREFIX=#{prefix}", "CC=#{ENV.cc}"
   end
