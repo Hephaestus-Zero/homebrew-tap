@@ -1,5 +1,5 @@
 class Hslice < Formula
-  desc "Sub-2ms C11 mmap trigram code indexer & structural AST slicer for AI coding agents"
+  desc "Sub-2ms C11 mmap trigram code indexer and AST slicer for AI coding agents"
   homepage "https://github.com/Hephaestus-Zero/hslice"
   url "https://github.com/Hephaestus-Zero/hslice/archive/refs/tags/v0.2.0.tar.gz"
   sha256 "e6be6c69e941e3f9abfa3508c41db7ee2fb42628c759b3048b0cf8bb04bd0ea2"

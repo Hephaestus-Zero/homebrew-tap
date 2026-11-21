@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ruby-syntax:
+    name: Ruby syntax check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Check Ruby syntax for all formulas
+        run: |
+          for f in Formula/*.rb; do
+            echo "Checking $f"
+            ruby -c "$f"
+          done
+
+  brew-audit-and-test:
+    name: Homebrew audit & smoke test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: "1"
+      HOMEBREW_NO_INSTALL_CLEANUP: "1"
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Add Homebrew to PATH (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          echo "/home/linuxbrew/.linuxbrew/bin" >> "$GITHUB_PATH"
+          echo "/home/linuxbrew/.linuxbrew/sbin" >> "$GITHUB_PATH"
+
+      - name: Set up local tap
+        run: |
+          TAP_DIR="$(brew --repository)/Library/Taps/hephaestus-zero/homebrew-tap"
+          rm -rf "${TAP_DIR}"
+          mkdir -p "$(dirname "${TAP_DIR}")"
+          ln -s "${GITHUB_WORKSPACE}" "${TAP_DIR}"
+
+      - name: Audit formulas
+        run: |
+          brew audit --formula hephaestus-zero/tap/hephaestus hephaestus-zero/tap/hslice
+          if [ "${RUNNER_OS}" = "Linux" ]; then
+            brew audit --formula hephaestus-zero/tap/hshield
+          fi
+
+      - name: Build and test hephaestus
+        run: |
+          brew install --build-from-source hephaestus-zero/tap/hephaestus
+          brew test hephaestus-zero/tap/hephaestus
+          brew uninstall hephaestus-zero/tap/hephaestus
+
+      - name: Build and test hslice
+        run: |
+          brew install --build-from-source hephaestus-zero/tap/hslice
+          brew test hephaestus-zero/tap/hslice
+          brew uninstall hephaestus-zero/tap/hslice
+
+      - name: Build and test hshield (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          brew install --build-from-source hephaestus-zero/tap/hshield
+          brew test hephaestus-zero/tap/hshield
+          brew uninstall hephaestus-zero/tap/hshield

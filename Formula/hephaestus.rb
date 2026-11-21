@@ -20,15 +20,16 @@ class Hephaestus < Formula
   end
 
   def install
-    # The shield organ uses Linux Landlock, so macOS builds the other four organs.
-    organs = OS.linux? ? "slice shield verify memory voice" : "slice verify memory voice"
-    system "make", "install", "PREFIX=#{prefix}", "ORGANS=#{organs}"
+    # All five organs build cleanly on both macOS and Linux (hshield audit + hhook are POSIX C11;
+    # Landlock sandboxing activates automatically on Linux).
+    system "make", "install", "PREFIX=#{prefix}"
   end
 
   test do
     assert_match "hephaestus 0.1.0", shell_output("#{bin}/hephaestus --version")
     assert_path_exists bin/"hslice"
     assert_path_exists bin/"hmemory"
-    assert_path_exists bin/"hshield" if OS.linux?
+    assert_path_exists bin/"hshield"
+    assert_path_exists bin/"hhook"
   end
 end
